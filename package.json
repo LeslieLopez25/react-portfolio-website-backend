@@ -17,5 +17,12 @@
   "bugs": {
     "url": "https://github.com/LeslieLopez25/react-portfolio-website-backend/issues"
   },
-  "homepage": "https://github.com/LeslieLopez25/react-portfolio-website-backend#readme"
+  "homepage": "https://github.com/LeslieLopez25/react-portfolio-website-backend#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.4",
+    "emailjs-com": "^3.2.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1"
+  }
 }
