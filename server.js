@@ -12,6 +12,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
+    methods: ["POST", "GET"],
   }),
 );
 
@@ -20,12 +21,14 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
   message: "Too many requests. Please try again later.",
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 app.post("/send-email", limiter, async (req, res) => {
   const { name, email, subject, message, time } = req.body;
 
-  if (!name || !email || !message) {
+  if (!name || !email || !subject || !message) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
@@ -40,7 +43,7 @@ app.post("/send-email", limiter, async (req, res) => {
         message,
         time,
       },
-      process.env.EMAILJS_PRIVATE_KEY,
+      process.env.EMAILJS_PUBLIC_KEY,
     );
 
     res.status(200).json({ success: true });
@@ -55,4 +58,4 @@ app.get("/health", (_req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log("Email backend running on port ${PORT}"));
+app.listen(PORT, () => console.log(`Email backend running on port ${PORT}`));
