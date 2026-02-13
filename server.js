@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-import emailjs from "@emailjs/nodejs";
+import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -25,6 +25,17 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 
+// SMTP transporter
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: Number(process.env.EMAIL_PORT),
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
 app.post("/send-email", limiter, async (req, res) => {
   const { name, email, subject, message, time } = req.body;
 
@@ -33,31 +44,26 @@ app.post("/send-email", limiter, async (req, res) => {
   }
 
   try {
-    await emailjs.send(
-      process.env.EMAILJS_SERVICE_ID,
-      process.env.EMAILJS_TEMPLATE_ID,
-      {
-        name,
-        email,
-        subject,
-        message,
-        time,
-      },
-      {
-        publicKey: process.env.EMAILJS_PUBLIC_KEY,
-        privateKey: process.env.EMAILJS_PRIVATE_KEY,
-      },
-    );
+    await transporter.sendMail({
+      from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_TO,
+      replyTo: email,
+      subject: subject,
+      text: `You've received a new message from your portfolio contact form.
+      
+      Name: ${name}
+      Email: ${email}
+      Sent at: ${time}
+
+      ----------------------------------
+
+      ${message}
+      `,
+    });
 
     res.status(200).json({ success: true });
   } catch (err) {
-    console.error("EmailJS error:", {
-      message: err.message,
-      status: err.status,
-      text: err.text,
-      response: err.response,
-    });
-
+    console.error("Email error: ", err);
     res.status(500).json({ error: "Failed to send email" });
   }
 });
