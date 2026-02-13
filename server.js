@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-import emailjs from "emailjs-com";
+import emailjs from "emailjs/nodejs";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -43,7 +43,10 @@ app.post("/send-email", limiter, async (req, res) => {
         message,
         time,
       },
-      process.env.EMAILJS_PUBLIC_KEY,
+      {
+        publicKey: process.env.EMAILJS_PUBLIC_KEY,
+        privateKey: process.env.EMAILJS_PRIVATE_KEY,
+      },
     );
 
     res.status(200).json({ success: true });
