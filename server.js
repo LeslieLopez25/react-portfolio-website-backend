@@ -51,7 +51,13 @@ app.post("/send-email", limiter, async (req, res) => {
 
     res.status(200).json({ success: true });
   } catch (err) {
-    console.error(err);
+    console.error("EmailJS error:", {
+      message: err.message,
+      status: err.status,
+      text: err.text,
+      response: err.response,
+    });
+
     res.status(500).json({ error: "Failed to send email" });
   }
 });
