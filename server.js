@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-import emailjs from "emailjs/nodejs";
+import emailjs from "@emailjs/nodejs";
 import dotenv from "dotenv";
 
 dotenv.config();
