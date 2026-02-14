@@ -46,6 +46,7 @@ app.post("/send-email", limiter, async (req, res) => {
     
     Name: ${name}
     Email: ${email}
+    Subject: ${subject}
     Sent at: ${time}
 
     ----------------------------------
