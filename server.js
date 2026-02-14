@@ -28,7 +28,7 @@ const limiter = rateLimit({
 // SMTP transporter
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
-  port: Number(process.env.EMAIL_PORT),
+  port: 465,
   secure: true,
   auth: {
     user: process.env.EMAIL_USER,
