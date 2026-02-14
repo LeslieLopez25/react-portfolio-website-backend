@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -25,19 +25,8 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 
-// SMTP transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  connectionTimeout: 10_000,
-  greetingTimeout: 10_000,
-  socketTimeout: 10_000,
-});
+// Resend client
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 app.post("/send-email", limiter, async (req, res) => {
   const { name, email, subject, message, time } = req.body;
@@ -47,26 +36,27 @@ app.post("/send-email", limiter, async (req, res) => {
   }
 
   try {
-    await transporter.sendMail({
-      from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`,
+    await resend.emails.send({
+      from: "Portfolio Contact <onboarding@resend.dev>",
       to: process.env.EMAIL_TO,
       replyTo: email,
-      subject: subject,
-      text: `You've received a new message from your portfolio contact form.
-      
-      Name: ${name}
-      Email: ${email}
-      Sent at: ${time}
+      subject,
+      text: `
+    You've received a new message from your portfolio contact form
+    
+    Name: ${name}
+    Email: ${email}
+    Sent at: ${time}
 
-      ----------------------------------
+    ----------------------------------
 
-      ${message}
-      `,
+    ${message}
+    `,
     });
 
     res.status(200).json({ success: true });
-  } catch (err) {
-    console.error("Email error: ", err);
+  } catch (error) {
+    console.error("Resend error:", error);
     res.status(500).json({ error: "Failed to send email" });
   }
 });
